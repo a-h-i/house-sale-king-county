@@ -7,6 +7,7 @@
     <list default="true" id="5256af81-a009-4ff7-a113-7f1afb959733" name="Changes" comment="Initial Commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/regression.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/regression.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +64,7 @@
       <updated>1738623450252</updated>
       <workItem from="1738623451280" duration="1550000" />
       <workItem from="1738658847737" duration="3551000" />
-      <workItem from="1738701487539" duration="4839000" />
+      <workItem from="1738701487539" duration="5708000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <option name="closed" value="true" />

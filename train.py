@@ -18,11 +18,11 @@ def compute_cost(X, y, w, b):
           cost (scalar): cost
     """
     m = X.shape[0]
-    cost = 0
+    cost = 0.0
     for i in range(m):
         f_wb = np.dot(X[i], w) + b
         cost += (f_wb - y[i]) ** 2
-    cost = cost / m
+    cost = cost / (2 * m)
     return cost
 
 def compute_gradient(X, y, w, b):
@@ -40,7 +40,7 @@ def compute_gradient(X, y, w, b):
     """
     m, n = X.shape
     dj_dw = np.zeros((n,))
-    dj_db = 0
+    dj_db = 0.0
 
     for i in range(m):
         error = (np.dot(X[i], w) + b) - y[i]
@@ -79,6 +79,6 @@ def gradient_descent(X, y, w_initial, b_initial, cost_function, gradient_functio
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
         j_history.append(cost_function(X, y, w, b)) # Save cost J at each iteration
-        if i % 10 == 0:
+        if i % 1000 == 0:
             print(f"Iteration {i:4d}: Cost {j_history[-1]:8.2f}   ")
     return w, b, j_history
