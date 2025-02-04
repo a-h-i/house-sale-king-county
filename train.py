@@ -79,6 +79,6 @@ def gradient_descent(X, y, w_initial, b_initial, cost_function, gradient_functio
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
         j_history.append(cost_function(X, y, w, b)) # Save cost J at each iteration
-        if i % 1000 == 0:
+        if i % 100 == 0:
             print(f"Iteration {i:4d}: Cost {j_history[-1]:8.2f}   ")
     return w, b, j_history
