@@ -1,84 +1,70 @@
-import copy
-
-import numpy as np
-
+import torch
+from tqdm import notebook
 
 
+"""
 
-def compute_cost(X, y, w, b):
+w := w - alpha * dl/dw
+
+dl/dw = dl/dy_ * dy_/dw
+
+dy_/dw = X
+dl/dy_ = y_ / m
+
+y_ = X.W + b
+L = (y_ - y)^2 / 2m
+
+dl/dw = X * (y_h - y) / m
+
+dl/db = dl/dy_ * dy_/db
+dy_/db = 1
+"""
+
+
+def gradient_descent(
+    X: torch.Tensor,
+    y: torch.Tensor,
+    alpha: torch.Tensor,
+    num_iterations: torch.Tensor,
+    batch_size: int,
+    w_initial: torch.Tensor = None,
+    b_initial: torch.Tensor = None,
+):
     """
-        compute cost
-        Args:
-          X (ndarray (m,n)): Data, m examples with n features
-          y (ndarray (m,)) : target values
-          w (ndarray (n,)) : model parameters
-          b (scalar)       : model parameter
+    Performs batch gradient descent to learn w and b. Updates w and b by taking
+    num_iters gradient steps with learning rate alpha
 
-        Returns:
-          cost (scalar): cost
+    Args:
+      X (Tensor (m,n))   : Data, m examples with n features
+      y (Tensor (m,1))    : target values
+      w_initial (Tensor (n,1)) : initial model parameters
+      b_initial (scalar)       : initial model parameter
+      alpha (float)       : Learning rate
+      num_iterations (int)     : number of iterations to run gradient descent
+
+    Returns:
+      w (Tensor (n,1)) : Updated values of parameters
+      b (scalar)       : Updated value of parameter
+      j_history (Tensor (n,1)): History of cost
     """
-    m = X.shape[0]
-    cost = 0.0
-    for i in range(m):
-        f_wb = np.dot(X[i], w) + b
-        cost += (f_wb - y[i]) ** 2
-    cost = cost / (2 * m)
-    return cost
-
-def compute_gradient(X, y, w, b):
-    """
-        Computes the gradient for linear regression
-        Args:
-          X (ndarray (m,n)): Data, m examples with n features
-          y (ndarray (m,)) : target values
-          w (ndarray (n,)) : model parameters
-          b (scalar)       : model parameter
-
-        Returns:
-          dj_dw (ndarray (n,)): The gradient of the cost w.r.t. the parameters w.
-          dj_db (scalar):       The gradient of the cost w.r.t. the parameter b.
-    """
-    m, n = X.shape
-    dj_dw = np.zeros((n,))
-    dj_db = 0.0
-
-    for i in range(m):
-        error = (np.dot(X[i], w) + b) - y[i]
-        dj_dw = dj_dw + error * X[i]
-        dj_db = dj_db + error
-    dj_dw = dj_dw / m
-    dj_db = dj_db / m
-    return dj_dw, dj_db
-
-def gradient_descent(X, y, w_initial, b_initial, cost_function, gradient_function, alpha, num_iterations):
-    """
-        Performs batch gradient descent to learn w and b. Updates w and b by taking
-        num_iters gradient steps with learning rate alpha
-
-        Args:
-          X (ndarray (m,n))   : Data, m examples with n features
-          y (ndarray (m,))    : target values
-          w_initial (ndarray (n,)) : initial model parameters
-          b_initial (scalar)       : initial model parameter
-          cost_function       : function to compute cost
-          gradient_function   : function to compute the gradient
-          alpha (float)       : Learning rate
-          num_iterations (int)     : number of iterations to run gradient descent
-
-        Returns:
-          w (ndarray (n,)) : Updated values of parameters
-          b (scalar)       : Updated value of parameter
-          j_history (ndarray (n,)): History of cost
-        """
     # An array to store cost J and w's at each iteration primarily for graphing later
+    w = w_initial or torch.rand((X.shape[1], 1), device=X.device)
+    b = b_initial or torch.rand(1, device=X.device)
     j_history = []
-    w = copy.deepcopy(w_initial)  # avoid modifying function param
-    b = b_initial
-    for i in range(num_iterations):
-        dj_dw, dj_db = gradient_function(X, y, w, b)
-        w = w - alpha * dj_dw
-        b = b - alpha * dj_db
-        j_history.append(cost_function(X, y, w, b)) # Save cost J at each iteration
-        if i % 100 == 0:
-            print(f"Iteration {i:4d}: Cost {j_history[-1]:8.2f}   ")
+    for _ in (prog_bar := notebook.trange(num_iterations, desc="learning")):
+        epoch_loss = []
+        for i in range(0, len(X), batch_size):
+            Xmini = X[i:i+batch_size]
+            ymini = y[i:i+batch_size]
+            m = len(Xmini)
+            prediction = Xmini @ w + b
+            loss = torch.square(prediction - ymini).sum() / (m * 2)
+            dj_dy_ = (prediction - ymini) / m
+            dj_dw = Xmini.T @ dj_dy_
+            dj_db = dj_dy_.sum()
+            w -= alpha * dj_dw
+            b -= alpha * dj_db
+            epoch_loss.append(loss.item())
+        j_history.append(sum(epoch_loss) / len(epoch_loss))  # Save cost J at each iteration
+        prog_bar.set_description(f"Loss: {j_history[-1]:8.2f}")
     return w, b, j_history
